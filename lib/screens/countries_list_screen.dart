@@ -1,3 +1,5 @@
+import 'package:country_info_flutter/widgets/filters.dart';
+import 'package:country_info_flutter/widgets/languages.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -149,20 +151,39 @@ class _CountriesListScreenState extends ConsumerState<CountriesListScreen> {
                     children: [
                       TextButton.icon(
                         icon: Icon(Icons.language),
-                        onPressed: () => null,
+                        onPressed: () {
+                          showModalBottomSheet(
+                            context: context,
+                            builder: (context) => Languages(),
+                          );
+                          Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => Languages(),
+                          ));
+                        },
                         label: Text(
                           "EN",
                           style: GoogleFonts.arimo(
                             color: themeNotifier.isLightMode()
-                                ? Colors.white
-                                : Color(0xFFD0D5DD),
+                                ? Color(0xFFD0D5DD)
+                                : Colors.white,
                           ),
                         ),
                       ),
                       TextButton.icon(
-                          icon: Icon(Icons.filter),
-                          onPressed: () => null,
-                          label: Text("Filter")),
+                        icon: Icon(Icons.filter),
+                        onPressed: () => showModalBottomSheet(
+                          context: context,
+                          builder: (context) => Filters(),
+                        ),
+                        label: Text(
+                          "Filter",
+                          style: GoogleFonts.arimo(
+                            color: themeNotifier.isLightMode()
+                                ? Color(0xFFD0D5DD)
+                                : Colors.white,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                   Flexible(
@@ -180,20 +201,9 @@ class _CountriesListScreenState extends ConsumerState<CountriesListScreen> {
                           ),
                           title: Text(
                             country.name,
-                            style: GoogleFonts.arimo(
-                              fontWeight: FontWeight.bold,
-                              color: themeNotifier.isLightMode()
-                                  ? Color(0xFF1C1917)
-                                  : Color(0xFFF2F4F7),
-                            ),
                           ),
                           subtitle: Text(
                             country.capitalCity,
-                            style: TextStyle(
-                              color: themeNotifier.isLightMode()
-                                  ? Color(0xFF667085)
-                                  : Color(0xFF98A2B3),
-                            ),
                           ),
                           onTap: () {
                             Navigator.of(context).push(
@@ -216,9 +226,12 @@ class _CountriesListScreenState extends ConsumerState<CountriesListScreen> {
               print("Stack trace: $stackTrace");
             }
             return Center(
-              child: Text(
-                '$error occurred',
-                style: TextStyle(fontSize: 18),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  '$error occurred',
+                  style: TextStyle(fontSize: 18),
+                ),
               ),
             );
           },

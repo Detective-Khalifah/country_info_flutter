@@ -12,3 +12,7 @@ final countriesProvider = FutureProvider<List<Country>>((ref) async {
   final apiService = ref.watch(apiServiceProvider);
   return await apiService.fetchCountries();
 });
+
+final selectedContinentsProvider = StateProvider<List<Continent>>((ref) => []);
+final selectedLanguageProvider = StateProvider<String?>((ref) => null);
+final selectedTimezonesProvider = StateProvider<List<String>>((ref) => []);
