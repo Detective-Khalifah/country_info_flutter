@@ -33,10 +33,10 @@ class Country {
 
   factory Country.fromJson(Map<String, dynamic> json) {
     return Country(
-      name: json["common"],
-      flagmoji: json["flag"],
-      officialName: json["official"],
-      countryCode: json["cca3"],
+      name: json["name"]["common"] as String,
+      flagmoji: json["flag"] as String,
+      officialName: json["name"]["official"] as String,
+      countryCode: json["cca3"] as String,
       capitalCity: json["capital"] == null
           ? ''
           // : List<String>.from(json["capital"]!.map((x) => x)),
@@ -48,7 +48,7 @@ class Country {
       flags: Flags.fromJson(json["flags"]), // links
       coatOfArms: CoatOfArms.fromJson(json["coatOfArms"]), // coat of arms
       maps: Maps.fromMap(json["maps"]),
-      population: json["population"],
+      population: json["population"] as int,
     );
   }
 }

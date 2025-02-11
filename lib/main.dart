@@ -1,33 +1,25 @@
-import 'package:country_info_flutter/models/country.dart';
+import 'package:country_info_flutter/providers/theme.dart';
 import 'package:country_info_flutter/screens/countries_list_screen.dart';
-import 'package:country_info_flutter/screens/country_details_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
-  // This widget is the root of the application.
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of this application.
-        //
-        // TRY THIS: Try running the application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
-        useMaterial3: true,
-      ),
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeNotifier = ref.watch(themeNotifierProvider.notifier);
+    final themeMode = ref.watch(themeNotifierProvider);
 
+    return MaterialApp(
+      title: 'Country Info',
+      theme: themeNotifier.lightTheme,
+      darkTheme: themeNotifier.darkTheme,
+      themeMode: themeMode,
       home:
           CountriesListScreen(), // This trailing comma makes auto-formatting nicer for build methods.
     );

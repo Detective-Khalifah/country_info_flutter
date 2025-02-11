@@ -12,7 +12,6 @@ A Flutter mobile application to display a list of countries with detailed inform
 ## Setup
 1. Clone the repository.
 2. Ensuring you have the [Flutter SDK](https://flutter.dev/) installed, run `flutter pub get` to install dependencies.
-3. Generate your API key as per [API documentation](https://restfulcountries.com/api-documentation/version/1) and add it to your configuration.
 
 ## Running the App
 - Execute `flutter run` on your device or emulator.
