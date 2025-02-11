@@ -152,9 +152,6 @@ class _CountriesListScreenState extends ConsumerState<CountriesListScreen> {
                             context: context,
                             builder: (context) => Languages(),
                           );
-                          Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => Languages(),
-                          ));
                         },
                         label: Text(
                           "EN",
