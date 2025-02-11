@@ -8,6 +8,9 @@ class ApiService {
 
   Future<List<Country>> fetchCountries({Map<String, String?>? filters}) async {
     String endpoint = "/all"; // Default to all countries
+    // if (filters?["lang"] != null && filters?["region"] != null) {
+    //   endpoint = "/all?lang=${filters?["lang"]}&region=${filters?["region"]}";
+    // }
     if (filters?["lang"] != null) {
       if (kDebugMode) {
         print("Language: ${filters?["lang"]}");

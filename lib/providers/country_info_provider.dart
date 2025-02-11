@@ -16,7 +16,7 @@ final countriesProvider = FutureProvider<List<Country>>((ref) async {
 });
 
 final filtersProvider = StateProvider<Map<String, String?>>((ref) => {});
-final selectedContinentsProvider = StateProvider<List<Continent>>((ref) => []);
+final selectedContinentProvider = StateProvider<String?>((ref) => "");
 final selectedLanguageProvider = StateProvider<String?>((ref) => null);
 final selectedTimezonesProvider = StateProvider<List<String>>((ref) => []);
 

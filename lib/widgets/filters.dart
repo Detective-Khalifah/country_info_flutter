@@ -9,7 +9,7 @@ class Filters extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Read the current list of selected continents
-    final selectedContinents = ref.watch(selectedContinentsProvider);
+    final selectedContinent = ref.watch(selectedContinentProvider);
     final selectedTimezones = ref.watch(selectedTimezonesProvider);
 
     final List<String> availableTimezones = [
@@ -33,7 +33,7 @@ class Filters extends ConsumerWidget {
             children: [
               ElevatedButton(
                 onPressed: () {
-                  ref.read(selectedContinentsProvider.notifier).state = [];
+                  ref.read(selectedContinentProvider.notifier).state = "";
                   ref.read(selectedTimezonesProvider.notifier).state = [];
                   ref.read(selectedLanguageProvider.notifier).state = null;
                 },
@@ -42,6 +42,12 @@ class Filters extends ConsumerWidget {
               ElevatedButton(
                 onPressed: () {
                   // Apply filters and pop
+                  // ref.read(selectedContinentProvider.notifier).state =
+                  //     selectedContinent;
+                  ref.invalidate(countriesProvider); // Clear previous data
+                  ref.read(filtersProvider.notifier).state =
+                      ({"region": selectedContinent});
+                  ref.read(countriesProvider);
                   Navigator.of(context).pop();
                 },
                 child: Text("Show results"),
@@ -84,26 +90,14 @@ class Filters extends ConsumerWidget {
               (continent) {
                 // continent.key is the display string (e.g., "Africa")
                 // continent.value is the Continent enum value (e.g., Continent.AFRICA)
-                return CheckboxListTile(
+                return RadioListTile.adaptive(
                   title: Text(continent.key),
-                  value: selectedContinents.contains(continent.value),
-                  onChanged: (checked) {
-                    final notifier =
-                        ref.read(selectedContinentsProvider.notifier);
-                    if (checked == true) {
-                      // Add the continent if it's not already selected
-                      if (!selectedContinents.contains(continent.value)) {
-                        notifier.state = [
-                          ...selectedContinents,
-                          continent.value
-                        ];
-                      }
-                    } else {
-                      // Remove the continent from the list
-                      notifier.state = selectedContinents
-                          .where((c) => c != continent.value)
-                          .toList();
-                    }
+                  value: continent.key,
+                  groupValue: selectedContinent,
+                  onChanged: (value) {
+                    ref.read(selectedContinentProvider.notifier).state = value;
+                    print(
+                        "Previous selected continent: $selectedContinent. Current continent: $value");
                   },
                 );
               },
