@@ -57,6 +57,7 @@ class Filters extends ConsumerWidget {
 
           // Timezone Filter
           ExpansionTile(
+            enabled: false,
             title: Text("Time Zone",
                 style: Theme.of(context).textTheme.titleMedium),
             children: availableTimezones.map(
