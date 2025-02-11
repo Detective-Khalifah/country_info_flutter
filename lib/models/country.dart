@@ -7,13 +7,14 @@ class Country {
   final int population;
   final String capitalCity;
   final President? president;
-  List<Continent>? continents;
+  final List<Continent>? continents;
   final String countryCode;
   final Maps? maps;
   final CoatOfArms? coatOfArms;
-
-  /// flag emoji
-  final String flagmoji;
+  final Map<String, String>? languages;
+  final Map<String, Currency>? currencies;
+  final List<String> timezones;
+  final String flagmoji; // flag emoji
   final Flags? flags;
 
   Country({
@@ -28,7 +29,10 @@ class Country {
     required this.continents,
     required this.maps,
     required this.coatOfArms,
-    this.flags,
+    required this.flags,
+    this.languages,
+    this.currencies,
+    required this.timezones,
   });
 
   factory Country.fromJson(Map<String, dynamic> json) {
@@ -49,6 +53,15 @@ class Country {
       coatOfArms: CoatOfArms.fromJson(json["coatOfArms"]), // coat of arms
       maps: Maps.fromMap(json["maps"]),
       population: json["population"] as int,
+      languages: json["languages"] != null
+          ? Map.from(json["languages"])
+              .map((k, v) => MapEntry<String, String>(k, v))
+          : {},
+      currencies: json["currencies"] != null
+          ? Map.from(json["currencies"]).map(
+              (k, v) => MapEntry<String, Currency>(k, Currency.fromJson(v)))
+          : {},
+      timezones: List<String>.from(json["timezones"].map((x) => x)),
     );
   }
 }
@@ -135,7 +148,7 @@ class Flags {
         alt: json["alt"],
       );
 
-  Map<String, dynamic> toMap() => {
+  Map<String, dynamic> toJson() => {
         "png": png,
         "svg": svg,
         "alt": alt,
@@ -165,7 +178,7 @@ class Maps {
         openStreetMaps: json["openStreetMaps"],
       );
 
-  Map<String, dynamic> toMap() => {
+  Map<String, dynamic> toJson() => {
         "googleMaps": googleMaps,
         "openStreetMaps": openStreetMaps,
       };
@@ -201,4 +214,33 @@ class EnumValues<T> {
     reverseMap = map.map((k, v) => MapEntry(v, k));
     return reverseMap;
   }
+}
+
+class Currency {
+  final String name;
+  final String symbol;
+
+  Currency({
+    required this.name,
+    required this.symbol,
+  });
+
+  Currency copyWith({
+    String? name,
+    String? symbol,
+  }) =>
+      Currency(
+        name: name ?? this.name,
+        symbol: symbol ?? this.symbol,
+      );
+
+  factory Currency.fromJson(Map<String, dynamic> json) => Currency(
+        name: json["name"],
+        symbol: json["symbol"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "name": name,
+        "symbol": symbol,
+      };
 }

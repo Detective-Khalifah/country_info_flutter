@@ -16,3 +16,4 @@ final countriesProvider = FutureProvider<List<Country>>((ref) async {
 final selectedContinentsProvider = StateProvider<List<Continent>>((ref) => []);
 final selectedLanguageProvider = StateProvider<String?>((ref) => null);
 final selectedTimezonesProvider = StateProvider<List<String>>((ref) => []);
+final imageIndexProvider = StateProvider<int>((ref) => 0);

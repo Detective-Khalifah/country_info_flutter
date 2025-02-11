@@ -55,10 +55,6 @@ class _CountriesListScreenState extends ConsumerState<CountriesListScreen> {
                 }
               },
             ),
-            IconButton(
-              icon: Icon(Icons.settings),
-              onPressed: () => null,
-            )
           ],
         ),
         body: theCountries.when(
