@@ -1,5 +1,5 @@
 import 'dart:async';
-
+import 'package:intl/intl.dart';
 import 'package:country_info_flutter/models/country.dart';
 import 'package:country_info_flutter/providers/country_info_provider.dart';
 import 'package:country_info_flutter/widgets/country_info_text.dart';
@@ -36,13 +36,14 @@ class _CountryDetailsScreenState extends ConsumerState<CountryDetailsScreen> {
       widget.country.maps?.openStreetMaps
     ]);
 
-    // Change page every 3 seconds
+    // Change page every 15 seconds
     _timer = Timer.periodic(const Duration(seconds: 15), (Timer timer) {
-      if (_currentPage < images.length - 1) {
+      if (_currentPage < 2) {
         _currentPage++;
-      } else {
-        _currentPage = 0;
       }
+      // else {
+      //   _currentPage = 0;
+      // }
       if (_pageController.hasClients) {
         _pageController.animateToPage(
           _currentPage,
@@ -64,6 +65,7 @@ class _CountryDetailsScreenState extends ConsumerState<CountryDetailsScreen> {
   Widget build(BuildContext context) {
     final imageIndex = ref.watch(imageIndexProvider);
     print("images: $images");
+    // String continent = widget.country.continents?.first.toString().map((x) => continentValues.map[x]!));
 
     return SafeArea(
       child: Scaffold(
@@ -81,11 +83,17 @@ class _CountryDetailsScreenState extends ConsumerState<CountryDetailsScreen> {
                     controller: _pageController,
                     itemCount: images.length,
                     itemBuilder: (context, index) {
-                      if (images[index] != null) {
+                      final image = images[index];
+                      if (image != null) {
                         return Center(
-                          child: images[imageIndex]!.endsWith(".svg")
-                              ? SvgPicture.network(
-                                  images[index]!,
+                          child: !image.endsWith(".svg")
+                              ? SizedBox(
+                                  width: 480,
+                                  height: 480,
+                                  child: MapView(mapUrl: image),
+                                )
+                              : SvgPicture.network(
+                                  image,
                                   height: 240,
                                   width: double.infinity,
                                   fit: BoxFit.contain,
@@ -94,17 +102,12 @@ class _CountryDetailsScreenState extends ConsumerState<CountryDetailsScreen> {
                                     padding: const EdgeInsets.all(30.0),
                                     child: const CircularProgressIndicator(),
                                   ),
-                                )
-                              : SizedBox(
-                                  width: 480,
-                                  height: 480,
-                                  child: MapView(mapUrl: images[imageIndex]!),
                                 ),
                         );
                       }
-                      if (images[index] == null) {
-                        return Center(child: Text("No image"));
-                      }
+                      // if (images[index] == null) {
+                      return Center(child: Text("No image"));
+                      // }
                     },
                   ),
                   // Left Arrow
@@ -162,7 +165,8 @@ class _CountryDetailsScreenState extends ConsumerState<CountryDetailsScreen> {
                 children: [
                   CountryInfoText(
                       label: "Population",
-                      value: "${widget.country.population}"),
+                      value: NumberFormat.compact(locale: "en_US")
+                          .format(widget.country.population)),
                   CountryInfoText(
                       label: "Official name",
                       value: widget.country.officialName),
@@ -172,9 +176,13 @@ class _CountryDetailsScreenState extends ConsumerState<CountryDetailsScreen> {
                     CountryInfoText(
                         label: "Head of state",
                         value: "${widget.country.president?.name}"),
-                  CountryInfoText(
-                      label: "Region",
-                      value: "${widget.country.continents?.first}"),
+                  if (widget.country.continents != null)
+                    CountryInfoText(
+                        label: "Region",
+                        value: widget.country.continents!
+                            .map((continent) =>
+                                continentValues.reverse[continent])
+                            .join(", ")),
                   // CountryInfoText(
                   //     label: "Motto", value: "${country.population}"),
                   SizedBox(
@@ -200,12 +208,13 @@ class _CountryDetailsScreenState extends ConsumerState<CountryDetailsScreen> {
                           "N/A"),
                   SizedBox(height: 16),
                   CountryInfoText(
-                      label: "Timezone", value: "${widget.country.timezones}"),
-                  CountryInfoText(
-                      label: "Demonym", value: "${widget.country.population}"),
-                  CountryInfoText(
-                      label: "Driving side",
-                      value: "${widget.country.population}"),
+                      label: "Timezone",
+                      value: widget.country.timezones.join(",")),
+                  // CountryInfoText(
+                  //     label: "Demonym", value: "${widget.country.population}"),
+                  // CountryInfoText(
+                  //     label: "Driving side",
+                  //     value: "${widget.country.population}"),
                 ],
               ),
             ),

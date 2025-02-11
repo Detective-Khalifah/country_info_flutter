@@ -16,8 +16,9 @@ A Flutter mobile application to display a list of countries with detailed inform
 ## Running the App
 - Execute `flutter run` on your device or emulator.
 
-## Contribution
-Guidelines on how to contribute to the project.
+## Learn more
+- [API Documentation](https://restcountries.com/)
+- Endpoint [fields](https://gitlab.com/restcountries/restcountries/-/blob/master/FIELDS.md) description
 
 ## License
 [MIT](LICENSE)
