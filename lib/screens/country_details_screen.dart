@@ -4,6 +4,7 @@ import 'package:country_info_flutter/widgets/country_info_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class CountryDetailsScreen extends ConsumerWidget {
   final Country country;
@@ -41,23 +42,14 @@ class CountryDetailsScreen extends ConsumerWidget {
                             fit: BoxFit.contain,
                             placeholderBuilder: (BuildContext context) =>
                                 Container(
-                                    padding: const EdgeInsets.all(30.0),
-                                    child: const CircularProgressIndicator()),
-                          )
-                        : Image.network(
-                            images[imageIndex]!,
-                            height: 180,
-                            width: double.infinity,
-                            fit: BoxFit.contain,
-                            loadingBuilder: (context, child, loadingProgress) =>
-                                Container(
                               padding: const EdgeInsets.all(30.0),
                               child: const CircularProgressIndicator(),
                             ),
-                            errorBuilder: (context, error, stackTrace) =>
-                                Center(
-                              child: Text("Could not load image"),
-                            ),
+                          )
+                        : TextButton.icon(
+                            label: Text("Map"),
+                            icon: Icon(Icons.map, size: 200),
+                            onPressed: () => _openMap(images[imageIndex]!),
                           ),
                   ),
                   // Left Arrow
@@ -146,5 +138,12 @@ class CountryDetailsScreen extends ConsumerWidget {
   String forceUnicode(String symbol) {
     return symbol.runes.map((e) => (e.toRadixString(32))).join();
     // return symbol.runes.map((e) => String.fromCharCode(e)).join();
+  }
+
+  Future<void> _openMap(String uri) async {
+    final Uri url = Uri.parse(uri);
+    if (!await launchUrl(url /*, mode: LaunchMode.externalApplication*/)) {
+      throw 'Could not launch $url';
+    }
   }
 }
