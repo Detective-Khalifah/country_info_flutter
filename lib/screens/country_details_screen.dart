@@ -1,57 +1,66 @@
 import 'package:country_info_flutter/models/country.dart';
 import 'package:country_info_flutter/providers/country_info_provider.dart';
 import 'package:country_info_flutter/widgets/country_info_text.dart';
+import 'package:country_info_flutter/widgets/map_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:url_launcher/url_launcher.dart';
 
-class CountryDetailsScreen extends ConsumerWidget {
+class CountryDetailsScreen extends ConsumerStatefulWidget {
   final Country country;
   const CountryDetailsScreen({super.key, required this.country});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CountryDetailsScreen> createState() =>
+      _CountryDetailsScreenState();
+}
+
+class _CountryDetailsScreenState extends ConsumerState<CountryDetailsScreen> {
+  @override
+  Widget build(BuildContext context) {
     final imageIndex = ref.watch(imageIndexProvider);
     final images = [
-      country.flags?.svg,
-      country.coatOfArms?.svg,
-      country.maps?.googleMaps,
-      country.maps?.openStreetMaps
+      widget.country.flags?.svg,
+      widget.country.coatOfArms?.svg,
+      widget.country.maps?.googleMaps,
+      widget.country.maps?.openStreetMaps
     ];
     print("images: $images");
 
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: Text(country.name),
+          title: Text(widget.country.name),
         ),
         body: ListView(
           // Image Carousel with Arrows
           children: [
             SizedBox(
-              height: 200,
+              height: 240,
               child: Stack(
                 children: [
-                  Center(
-                    child: images[imageIndex]!.endsWith(".svg")
-                        ? SvgPicture.network(
-                            images[imageIndex]!,
-                            height: 240,
-                            width: double.infinity,
-                            fit: BoxFit.contain,
-                            placeholderBuilder: (BuildContext context) =>
-                                Container(
-                              padding: const EdgeInsets.all(30.0),
-                              child: const CircularProgressIndicator(),
+                  if (images[imageIndex] != null)
+                    Center(
+                      child: images[imageIndex]!.endsWith(".svg")
+                          ? SvgPicture.network(
+                              images[imageIndex]!,
+                              height: 240,
+                              width: double.infinity,
+                              fit: BoxFit.contain,
+                              placeholderBuilder: (BuildContext context) =>
+                                  Container(
+                                padding: const EdgeInsets.all(30.0),
+                                child: const CircularProgressIndicator(),
+                              ),
+                            )
+                          : SizedBox(
+                              width: 480,
+                              height: 480,
+                              child: MapView(mapUrl: images[imageIndex]!),
                             ),
-                          )
-                        : TextButton.icon(
-                            label: Text("Map"),
-                            icon: Icon(Icons.map, size: 200),
-                            onPressed: () => _openMap(images[imageIndex]!),
-                          ),
-                  ),
+                    ),
+                  if (images[imageIndex] == null)
+                    Center(child: Text("No image")),
                   // Left Arrow
                   Positioned(
                     left: 10,
@@ -86,46 +95,51 @@ class CountryDetailsScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   CountryInfoText(
-                      label: "Population", value: "${country.population}"),
+                      label: "Population",
+                      value: "${widget.country.population}"),
                   CountryInfoText(
-                      label: "Official name", value: country.officialName),
-                  CountryInfoText(label: "Capital", value: country.capitalCity),
+                      label: "Official name",
+                      value: widget.country.officialName),
                   CountryInfoText(
-                      label: "Head of state",
-                      value: "${country.president?.name}"),
+                      label: "Capital", value: widget.country.capitalCity),
+                  if (widget.country.president != null)
+                    CountryInfoText(
+                        label: "Head of state",
+                        value: "${widget.country.president?.name}"),
                   CountryInfoText(
-                      label: "Region", value: "${country.continents?.first}"),
+                      label: "Region",
+                      value: "${widget.country.continents?.first}"),
                   // CountryInfoText(
                   //     label: "Motto", value: "${country.population}"),
                   SizedBox(
                     height: 8,
                   ),
                   CountryInfoText(
-                      label: "Country code", value: country.countryCode),
+                      label: "Country code", value: widget.country.countryCode),
                   SizedBox(height: 16),
                   CountryInfoText(
                       label: "Languages",
-                      value: country.languages?.values.join(", ") ?? "N/A"),
+                      value:
+                          widget.country.languages?.values.join(", ") ?? "N/A"),
                   // CountryInfoText(
                   //     label: "Official language",
                   //     value: "${country.population}"),
                   CountryInfoText(
                       label: "Currencies",
-                      value: country.currencies?.entries.map((e) {
+                      value: widget.country.currencies?.entries.map((e) {
                             final name = e.value.name;
                             final symbol = e.value.symbol;
-                            return symbol.isNotEmpty
-                                ? "$name (${symbol})"
-                                : name;
+                            return symbol.isNotEmpty ? "$name ($symbol)" : name;
                           }).join(", ") ??
                           "N/A"),
                   SizedBox(height: 16),
                   CountryInfoText(
-                      label: "Timezone", value: "${country.timezones}"),
+                      label: "Timezone", value: "${widget.country.timezones}"),
                   CountryInfoText(
-                      label: "Demonym", value: "${country.population}"),
+                      label: "Demonym", value: "${widget.country.population}"),
                   CountryInfoText(
-                      label: "Driving side", value: "${country.population}"),
+                      label: "Driving side",
+                      value: "${widget.country.population}"),
                 ],
               ),
             ),
@@ -138,12 +152,5 @@ class CountryDetailsScreen extends ConsumerWidget {
   String forceUnicode(String symbol) {
     return symbol.runes.map((e) => (e.toRadixString(32))).join();
     // return symbol.runes.map((e) => String.fromCharCode(e)).join();
-  }
-
-  Future<void> _openMap(String uri) async {
-    final Uri url = Uri.parse(uri);
-    if (!await launchUrl(url /*, mode: LaunchMode.externalApplication*/)) {
-      throw 'Could not launch $url';
-    }
   }
 }
