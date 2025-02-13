@@ -167,39 +167,44 @@ class Languages extends ConsumerWidget {
     ];
     final selectedLanguage = ref.watch(selectedLanguageProvider);
 
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(title: Text("Languages")),
-        // Language Dropdown
-        body: ListView.builder(
-          shrinkWrap: true,
-          itemCount: availableLanguages.length,
-          itemBuilder: (context, index) {
-            final language = availableLanguages[index];
-            return RadioListTile.adaptive(
-              title: Text(language),
-              value: language,
-              groupValue: selectedLanguage,
-              onChanged: (value) {
-                ref.read(selectedLanguageProvider.notifier).state = value;
-                ref.invalidate(countriesProvider); // Clear previous data
-                ref.read(filtersProvider.notifier).state =
-                    ({"lang": language, "region": null});
-                ref.read(countriesProvider);
-                Navigator.of(context).pop();
+    return SizedBox(
+      height: MediaQuery.of(context).size.height * 0.6,
+      child: Column(
+        children: [
+          ListTile(
+            leading: Text(
+              "Filter",
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            trailing: IconButton(
+              icon: Icon(Icons.close),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: availableLanguages.length,
+              itemBuilder: (context, index) {
+                final language = availableLanguages[index];
+                // Languages Radio
+                return RadioListTile.adaptive(
+                  title: Text(language),
+                  value: language,
+                  groupValue: selectedLanguage,
+                  onChanged: (value) {
+                    ref.read(selectedLanguageProvider.notifier).state = value;
+                    ref.invalidate(countriesProvider); // Clear previous data
+                    ref.read(filtersProvider.notifier).state =
+                        ({"lang": language, "region": null});
+                    ref.read(countriesProvider);
+                    Navigator.of(context).pop();
+                  },
+                );
               },
-            );
-          },
-        ),
-        // DropdownButton<String>(
-        //   value: selectedLanguage,
-        //   hint: Text("Select Language"),
-        //   onChanged: (value) =>
-        //       ref.read(selectedLanguageProvider.notifier).state = value,
-        //   items: availableLanguages.map((lang) {
-        //     return DropdownMenuItem(value: lang, child: Text(lang));
-        //   }).toList(),
-        // ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -27,13 +27,19 @@ class _CountriesListScreenState extends ConsumerState<CountriesListScreen> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          title: Text("Countries"),
+          title: Text(
+            "Explore",
+            style: GoogleFonts.lilyScriptOne().copyWith(
+              color: themeNotifier.isLightMode()
+                  ? Color(0xFF001637)
+                  : Color(0xFFEAECF0),
+            ),
+          ),
           actions: [
             IconButton(
               icon: Icon(
                 themeNotifier.isLightMode()
-                    ? Icons.brightness_7
+                    ? Icons.wb_sunny_outlined
                     : Icons.brightness_3,
               ),
               onPressed: () {
@@ -53,37 +59,67 @@ class _CountriesListScreenState extends ConsumerState<CountriesListScreen> {
               children: [
                 CountryAutocompleteText(),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    TextButton.icon(
-                      icon: Icon(Icons.language),
-                      onPressed: () {
-                        showModalBottomSheet(
-                          context: context,
-                          builder: (context) => Languages(),
-                        );
-                      },
+                    OutlinedButton.icon(
+                      icon: Icon(
+                        Icons.language,
+                        color: themeNotifier.isLightMode()
+                            ? Colors.black
+                            : Colors.white,
+                      ),
+                      onPressed: () => showModalBottomSheet(
+                        context: context,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(32),
+                            topRight: Radius.circular(32),
+                          ),
+                        ),
+                        builder: (context) => Languages(),
+                      ),
                       label: Text(
                         "EN",
                         style: GoogleFonts.arimo(
                           color: themeNotifier.isLightMode()
-                              ? Color(0xFFD0D5DD)
-                              : Colors.white,
+                              ? Colors.black
+                              : Color(0xFFD0D5DD),
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4),
                         ),
                       ),
                     ),
-                    TextButton.icon(
-                      icon: Icon(Icons.filter),
+                    OutlinedButton.icon(
+                      icon: Icon(
+                        Icons.filter_alt_outlined,
+                        color: themeNotifier.isLightMode()
+                            ? Colors.black
+                            : Colors.white,
+                      ),
                       onPressed: () => showModalBottomSheet(
                         context: context,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(32),
+                            topRight: Radius.circular(32),
+                          ),
+                        ),
                         builder: (context) => Filters(),
                       ),
                       label: Text(
                         "Filter",
-                        style: GoogleFonts.arimo(
+                        style: TextStyle(
                           color: themeNotifier.isLightMode()
-                              ? Color(0xFFD0D5DD)
-                              : Colors.white,
+                              ? Colors.black
+                              : Color(0xFFD0D5DD),
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4),
                         ),
                       ),
                     ),
@@ -212,74 +248,97 @@ class _CountryAutocompleteTextState extends State<CountryAutocompleteText> {
 
   @override
   Widget build(BuildContext context) {
-    return Autocomplete<Country>(
-      displayStringForOption: (Country theCountry) {
-        return theCountry.name;
-      },
-      optionsBuilder: (TextEditingValue textEditingValue) {
-        if (textEditingValue.text.isEmpty) {
-          return [];
-          // TODO: show loading indicator?
-        }
-        return countries.where((aCountry) => aCountry.name
-            .toLowerCase()
-            .contains(textEditingValue.text.toLowerCase()));
-      },
-      onSelected: (suggestion) {
-        setState(() {
-          _selectedCountry = suggestion;
-          if (_selectedCountry != null) {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) =>
-                    CountryDetailsScreen(country: _selectedCountry!),
-              ),
-            );
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Autocomplete<Country>(
+        displayStringForOption: (Country theCountry) {
+          return theCountry.name;
+        },
+        optionsBuilder: (TextEditingValue textEditingValue) {
+          if (textEditingValue.text.isEmpty) {
+            return [];
+            // TODO: show loading indicator?
           }
-        });
-      },
-      fieldViewBuilder: (BuildContext context, TextEditingController controller,
-          FocusNode focusNode, VoidCallback onFieldSubmitted) {
-        countriesAutocompleteController = controller;
-        return TextFormField(
-          controller: countriesAutocompleteController,
-          enableSuggestions: false,
-          focusNode: focusNode,
-          onFieldSubmitted: (String value) {
-            onFieldSubmitted();
-          },
-          decoration: InputDecoration(
-            border: OutlineInputBorder(),
-            labelText: "Country",
-            hintText: "Enter a country name",
-            suffixIcon: countriesAutocompleteController.text.isNotEmpty
-                ? IconButton(
-                    icon: Icon(Icons.clear),
-                    onPressed: () {
-                      setState(() => countriesAutocompleteController.clear());
-                    },
-                  )
-                : null,
-          ),
-          validator: (String? value) {
-            // If the hit is not an exact match, clear lga field and show error text
-            final matchingCountries = countries.where(
-                (aState) => aState.name.toLowerCase() == value?.toLowerCase());
+          return countries.where((aCountry) => aCountry.name
+              .toLowerCase()
+              .contains(textEditingValue.text.toLowerCase()));
+        },
+        onSelected: (suggestion) {
+          setState(() {
+            _selectedCountry = suggestion;
+            if (_selectedCountry != null) {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) =>
+                      CountryDetailsScreen(country: _selectedCountry!),
+                ),
+              );
+            }
+          });
+        },
+        fieldViewBuilder: (BuildContext context,
+            TextEditingController controller,
+            FocusNode focusNode,
+            VoidCallback onFieldSubmitted) {
+          countriesAutocompleteController = controller;
+          return TextFormField(
+            controller: countriesAutocompleteController,
+            enableSuggestions: false,
+            focusNode: focusNode,
+            onFieldSubmitted: (String value) {
+              onFieldSubmitted();
+            },
+            textAlign: TextAlign.center,
+            decoration: InputDecoration(
+              fillColor: Theme.of(context).brightness == Brightness.dark
+                  ? Color(0x3398A2B3)
+                  : Color(0xFFF2F4F7),
+              border: OutlineInputBorder(),
+              // labelText: "Search Country",
+              // labelStyle: TextStyle(textAlign: TextAlign.center),
+              label: Center(
+                child: Text(
+                  "Search Country",
+                  style: TextStyle(
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Color(0xFF98A2B3)
+                        : Color(0xFFF2F4F7),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
 
-            if (matchingCountries.length == 1 &&
-                countries.elementAt(0) == matchingCountries.first) {
-              _selectedCountry = matchingCountries.first;
+              prefixIcon: Icon(Icons.search),
+              hintText: "Enter a country name",
+              suffixIcon: countriesAutocompleteController.text.isNotEmpty
+                  ? IconButton(
+                      icon: Icon(Icons.clear),
+                      onPressed: () {
+                        setState(() => countriesAutocompleteController.clear());
+                      },
+                    )
+                  : null,
+            ),
+            validator: (String? value) {
+              // If the hit is not an exact match, clear lga field and show error text
+              final matchingCountries = countries.where((aState) =>
+                  aState.name.toLowerCase() == value?.toLowerCase());
+
+              if (matchingCountries.length == 1 &&
+                  countries.elementAt(0) == matchingCountries.first) {
+                _selectedCountry = matchingCountries.first;
+                return null;
+              }
+
+              // Keep this here to avoid validation getting triggered when form loads, until the user interacts with the field
+              if (value == null || value.isEmpty || matchingCountries.isEmpty) {
+                return 'Please select a country';
+              }
               return null;
-            }
-
-            // Keep this here to avoid validation getting triggered when form loads, until the user interacts with the field
-            if (value == null || value.isEmpty || matchingCountries.isEmpty) {
-              return 'Please select a country';
-            }
-            return null;
-          },
-        );
-      },
+            },
+          );
+        },
+      ),
     );
   }
 }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class CountryInfoText extends StatelessWidget {
   final String label;
@@ -17,11 +16,14 @@ class CountryInfoText extends StatelessWidget {
         children: [
           TextSpan(
             text: "$label: ",
-            style: Theme.of(context).textTheme.titleMedium,
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium
+                ?.copyWith(color: Color(0xFF1C1917)),
           ),
           TextSpan(
             text: value,
-            style: GoogleFonts.notoSansSymbols(),
+            style: TextStyle(color: Color(0xFFF2F4F7)),
           ),
         ],
       ),

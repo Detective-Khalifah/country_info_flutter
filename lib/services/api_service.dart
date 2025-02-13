@@ -4,8 +4,12 @@ import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:http/http.dart' as webber;
 
 class ApiService {
-  final String baseUrl = 'https://restcountries.com/v3.1';
+  // final String baseUrl = ' https://restfulcountries.com/api/v1';
+  // Future<List<Country>> fetchCountries({Map<String, String?>? filters}) async {
+  //   String endpoint = "/countries"; // Default to all countries
+  // }
 
+  final String baseUrl = 'https://restcountries.com/v3.1';
   Future<List<Country>> fetchCountries({Map<String, String?>? filters}) async {
     String endpoint = "/all"; // Default to all countries
     // if (filters?["lang"] != null && filters?["region"] != null) {

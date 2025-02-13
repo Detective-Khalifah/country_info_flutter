@@ -71,6 +71,7 @@ class _CountryDetailsScreenState extends ConsumerState<CountryDetailsScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(widget.country.name),
+          centerTitle: true,
         ),
         body: ListView(
           // Image Carousel with Arrows

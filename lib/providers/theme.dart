@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// [ThemeMode] setting key.
@@ -30,13 +29,24 @@ class ThemeNotifier extends StateNotifier<ThemeMode> {
       seedColor: Colors.white,
       brightness: Brightness.light,
     ),
+    fontFamily: 'Axiforma',
+    appBarTheme: AppBarTheme(
+      color: Colors.white,
+      //     // backgroundColor: Colors.white,
+      //     titleTextStyle: TextStyle(color: Color(0xFF001637), fontSize: 22)
+      //     // titleTextStyle: Theme.of(context)
+      //     //     .appBarTheme
+      //     //     .titleTextStyle!
+      //     //     .copyWith(color: Color(0xFF001637)),
+    ),
     listTileTheme: ListTileThemeData(
-      titleTextStyle: GoogleFonts.arimo(
+      titleTextStyle: TextStyle(
         fontWeight: FontWeight.bold,
         color: Color(0xFF1C1917),
       ),
       subtitleTextStyle: TextStyle(color: Color(0xFF667085)),
     ),
+    scaffoldBackgroundColor: Colors.white,
   );
 
   /// [Material] 3 dark theme using a dark blue, dye-like colour as seed.
@@ -46,13 +56,16 @@ class ThemeNotifier extends StateNotifier<ThemeMode> {
       seedColor: const Color(0xFF000F24),
       brightness: Brightness.dark,
     ),
+    fontFamily: 'Axiforma',
+    appBarTheme: AppBarTheme(color: Color(0xFF000F24)),
     listTileTheme: ListTileThemeData(
-      titleTextStyle: GoogleFonts.arimo(
+      titleTextStyle: TextStyle(
         fontWeight: FontWeight.bold,
         color: Color(0xFFF2F4F7),
       ),
       subtitleTextStyle: TextStyle(color: Color(0xFF98A2B3)),
     ),
+    scaffoldBackgroundColor: Color(0xFF000F24),
   );
 
   /// Toggle between light and dark themes, persist the change.
