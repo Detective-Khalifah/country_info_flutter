@@ -8,6 +8,7 @@ class Country {
   final String capitalCity;
   final President? president;
   final List<Continent>? continents;
+  final String? subContinent;
   final String countryCode;
   final Maps? maps;
   final CoatOfArms? coatOfArms;
@@ -16,6 +17,12 @@ class Country {
   final List<String> timezones;
   final String flagmoji; // flag emoji
   final Flags? flags;
+  final StartOfWeek startOfWeek;
+  final List<String>? tld; // Top-level internet domain
+  final bool? independent; // Independent
+  final bool unMember; // United Nations Member?
+  final Idd idd; // International dialing code
+  final Car car; // Driving side & signs
 
   Country({
     required this.name,
@@ -33,6 +40,13 @@ class Country {
     this.languages,
     this.currencies,
     required this.timezones,
+    required this.startOfWeek,
+    this.tld,
+    this.independent,
+    required this.unMember,
+    this.subContinent,
+    required this.idd,
+    required this.car,
   });
 
   factory Country.fromJson(Map<String, dynamic> json) {
@@ -62,31 +76,15 @@ class Country {
               (k, v) => MapEntry<String, Currency>(k, Currency.fromJson(v)))
           : {},
       timezones: List<String>.from(json["timezones"].map((x) => x)),
-    );
-  }
-}
-
-class MinCountry {
-  final String name;
-  final String capitalCity;
-  final String flagmoji;
-
-  MinCountry({
-    required this.name,
-    required this.flagmoji,
-    required this.capitalCity,
-  });
-
-  factory MinCountry.fromJson(Map<String, dynamic> json) {
-    return MinCountry(
-      name: json["common"],
-      flagmoji: json["flag"],
-      capitalCity: json["capital"] == null
-          ? ''
-          // : List<String>.from(json["capital"]!.map((x) => x)),
-          // : (json["capital"]!.map((x) => x) as List<String>).first,
-          : List<String>.from(json["capital"]!.map((x) => x)).first,
-      // ? '' : (json["capital"] as List).isNotEmpty ? json["capital"][0] : '',
+      startOfWeek: startOfWeekValues.map[json["startOfWeek"]]!,
+      tld: json["tld"] == null
+          ? []
+          : List<String>.from(json["tld"]!.map((x) => x)),
+      subContinent: json["subregion"],
+      car: Car.fromMap(json["car"]),
+      independent: json["independent"],
+      unMember: json["unMember"],
+      idd: Idd.fromMap(json["idd"]),
     );
   }
 }
@@ -244,3 +242,67 @@ class Currency {
         "symbol": symbol,
       };
 }
+
+enum StartOfWeek { MONDAY, SATURDAY, SUNDAY }
+
+final startOfWeekValues = EnumValues({
+  "monday": StartOfWeek.MONDAY,
+  "saturday": StartOfWeek.SATURDAY,
+  "sunday": StartOfWeek.SUNDAY
+});
+
+class Idd {
+  final String? root;
+  final List<String>? suffixes;
+
+  Idd({
+    this.root,
+    this.suffixes,
+  });
+
+  Idd copyWith({
+    String? root,
+    List<String>? suffixes,
+  }) =>
+      Idd(
+        root: root ?? this.root,
+        suffixes: suffixes ?? this.suffixes,
+      );
+
+  factory Idd.fromMap(Map<String, dynamic> json) => Idd(
+        root: json["root"],
+        suffixes: json["suffixes"] == null
+            ? []
+            : List<String>.from(json["suffixes"]!.map((x) => x)),
+      );
+}
+
+class Car {
+  // final List<String>? signs;
+  final Side side;
+
+  Car({
+    // this.signs,
+    required this.side,
+  });
+
+  Car copyWith({
+    // List<String>? signs,
+    Side? side,
+  }) =>
+      Car(
+        // signs: signs ?? this.signs,
+        side: side ?? this.side,
+      );
+
+  factory Car.fromMap(Map<String, dynamic> json) => Car(
+        // signs: json["signs"] == null
+        //     ? []
+        //     : List<String>.from(json["signs"]!.map((x) => x)),
+        side: sideValues.map[json["side"]]!,
+      );
+}
+
+enum Side { LEFT, RIGHT }
+
+final sideValues = EnumValues({"left": Side.LEFT, "right": Side.RIGHT});

@@ -16,14 +16,18 @@ class CountryInfoText extends StatelessWidget {
         children: [
           TextSpan(
             text: "$label: ",
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.copyWith(color: Color(0xFF1C1917)),
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white
+                      : Color(0xFF1C1917),
+                ),
           ),
           TextSpan(
             text: value,
-            style: TextStyle(color: Color(0xFFF2F4F7)),
+            style: TextStyle(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Color(0xFFF2F4F7)
+                    : Colors.grey),
           ),
         ],
       ),

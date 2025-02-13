@@ -19,13 +19,16 @@ class _MapViewState extends State<MapView> {
     super.initState();
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..enableZoom(true)
       ..loadRequest(Uri.parse(widget.mapUrl));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Map View"), automaticallyImplyLeading: false),
+      appBar: AppBar(
+          title: Text("Map. Tap to open full view"),
+          automaticallyImplyLeading: false),
       body: Stack(children: [
         WebViewWidget(
           controller: _controller,

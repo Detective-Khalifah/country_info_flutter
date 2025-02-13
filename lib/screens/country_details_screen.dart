@@ -165,57 +165,85 @@ class _CountryDetailsScreenState extends ConsumerState<CountryDetailsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   CountryInfoText(
+                      label: "Official name",
+                      value: widget.country.officialName),
+                  CountryInfoText(
                       label: "Population",
                       value: NumberFormat.compact(locale: "en_US")
                           .format(widget.country.population)),
                   CountryInfoText(
-                      label: "Official name",
-                      value: widget.country.officialName),
-                  CountryInfoText(
                       label: "Capital", value: widget.country.capitalCity),
-                  if (widget.country.president != null)
-                    CountryInfoText(
-                        label: "Head of state",
-                        value: "${widget.country.president?.name}"),
                   if (widget.country.continents != null)
                     CountryInfoText(
-                        label: "Region",
+                        label: "Continent",
                         value: widget.country.continents!
                             .map((continent) =>
                                 continentValues.reverse[continent])
                             .join(", ")),
-                  // CountryInfoText(
-                  //     label: "Motto", value: "${country.population}"),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  CountryInfoText(
-                      label: "Country code", value: widget.country.countryCode),
+                  if (widget.country.subContinent != null)
+                    CountryInfoText(
+                        label: "Sub-continent:",
+                        value: widget.country.subContinent!),
                   SizedBox(height: 16),
+                  // CountryInfoText(
+                  //     label: "Motto", value: "${country.motto}"),
+                  if (widget.country.president != null)
+                    CountryInfoText(
+                        label: "Head of state",
+                        value: "${widget.country.president?.name}"),
                   CountryInfoText(
-                      label: "Languages",
+                      label: "Official languages",
                       value:
                           widget.country.languages?.values.join(", ") ?? "N/A"),
-                  // CountryInfoText(
-                  //     label: "Official language",
-                  //     value: "${country.population}"),
+
                   CountryInfoText(
-                      label: "Currencies",
-                      value: widget.country.currencies?.entries.map((e) {
-                            final name = e.value.name;
-                            final symbol = e.value.symbol;
-                            return symbol.isNotEmpty ? "$name ($symbol)" : name;
-                          }).join(", ") ??
-                          "N/A"),
-                  SizedBox(height: 16),
+                      label: "Country code", value: widget.country.countryCode),
+                  if (widget.country.idd.root != null ||
+                      widget.country.idd.suffixes != null)
+                    CountryInfoText(
+                      label: "International dialing code",
+                      value: widget.country.idd.root! +
+                          widget.country.idd.suffixes!.join(", "),
+                    ),
+                  if (widget.country.tld != null &&
+                      widget.country.tld!.isNotEmpty)
+                    CountryInfoText(
+                        label: "Top-level internet domain",
+                        value: widget.country.tld!.join(",")),
                   CountryInfoText(
                       label: "Timezone",
                       value: widget.country.timezones.join(",")),
+                  SizedBox(height: 16),
+                  CountryInfoText(
+                    label: "Start of Week",
+                    value: widget.country.startOfWeek.name[0] +
+                        widget.country.startOfWeek.name
+                            .substring(1)
+                            .toLowerCase(),
+                  ),
+                  CountryInfoText(
+                    label: "Currencies",
+                    value: widget.country.currencies?.entries.map((e) {
+                          final name = e.value.name;
+                          final symbol = e.value.symbol;
+                          return symbol.isNotEmpty ? "$name ($symbol)" : name;
+                        }).join(", ") ??
+                        "N/A",
+                  ),
+                  if (widget.country.independent != null)
+                    CountryInfoText(
+                        label: "Independent",
+                        value: widget.country.independent! ? "Aye" : "Nay"),
+                  CountryInfoText(
+                      label: "United Nations Member",
+                      value: widget.country.unMember ? "Yes" : "No"),
                   // CountryInfoText(
                   //     label: "Demonym", value: "${widget.country.population}"),
-                  // CountryInfoText(
-                  //     label: "Driving side",
-                  //     value: "${widget.country.population}"),
+                  CountryInfoText(
+                    label: "Driving side",
+                    value: widget.country.car.side.name[0] +
+                        widget.country.car.side.name.substring(1).toLowerCase(),
+                  ),
                 ],
               ),
             ),

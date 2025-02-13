@@ -9,6 +9,7 @@ import 'package:country_info_flutter/models/country.dart';
 import 'package:country_info_flutter/providers/country_info_provider.dart';
 import 'package:country_info_flutter/providers/theme.dart';
 import 'package:country_info_flutter/screens/country_details_screen.dart';
+import 'package:grouped_list/grouped_list.dart';
 
 class CountriesListScreen extends ConsumerStatefulWidget {
   const CountriesListScreen({super.key});
@@ -19,10 +20,14 @@ class CountriesListScreen extends ConsumerStatefulWidget {
 }
 
 class _CountriesListScreenState extends ConsumerState<CountriesListScreen> {
+  late List<Country> allCountries = [];
+  late List<Country> filteredCountries = [];
+
   @override
   Widget build(BuildContext context) {
     final AsyncValue<List<Country>> theCountries = ref.watch(countriesProvider);
-    final themeNotifier = ref.read(themeNotifierProvider.notifier);
+    final ThemeNotifier themeNotifier =
+        ref.read(themeNotifierProvider.notifier);
 
     return SafeArea(
       child: Scaffold(
@@ -57,7 +62,14 @@ class _CountriesListScreenState extends ConsumerState<CountriesListScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                CountryAutocompleteText(),
+                CountryAutocompleteText(
+                  allCountries: allCountries,
+                  onFilter: (List<Country> newFilteredList) {
+                    setState(() {
+                      filteredCountries = newFilteredList;
+                    });
+                  },
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -127,6 +139,22 @@ class _CountriesListScreenState extends ConsumerState<CountriesListScreen> {
                 ),
                 theCountries.when(
                   data: (countries) {
+                    // If the countries haven't been loaded yet, store them
+                    // if (allCountries.isEmpty) {
+                    //   allCountries = countries;
+                    //   filteredCountries = countries;
+                    // }
+
+                    // Always update the allCountries and filteredCountries lists
+                    allCountries = countries;
+                    // Initialize filteredCountries if it's empty or after data reload
+                    if (filteredCountries.isEmpty) {
+                      filteredCountries = List.from(allCountries);
+                    }
+
+                    // Sort the list of countries; not necessary when using order: [GroupedListOrder.ASC] if items' order is irrelevant
+                    countries.sort((a, b) => a.name.compareTo(b.name));
+
                     return RefreshIndicator.adaptive(
                       onRefresh: () async {
                         // Invalidate the provider so that it fetches data again.
@@ -139,13 +167,26 @@ class _CountriesListScreenState extends ConsumerState<CountriesListScreen> {
                         // Wait a moment for the provider to re-fetch before completing the refresh.
                         await Future.delayed(const Duration(seconds: 1));
                       },
-                      child: ListView.builder(
+                      child: GroupedListView<Country, String>(
                         shrinkWrap: true,
                         physics: ClampingScrollPhysics(),
-                        // itemCount: theCountries.asData?.value.length,
-                        itemCount: countries.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          final country = countries[index];
+                        elements: filteredCountries,
+                        groupBy: (country) => country.name[0]
+                            .toUpperCase(), // Group by first letter
+                        groupSeparatorBuilder: (String letter) => Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            letter,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: themeNotifier.isLightMode()
+                                  ? Color(0xFF667085)
+                                  : Color(0xFF98A2B3),
+                            ),
+                          ),
+                        ),
+                        itemBuilder: (BuildContext context, Country country) {
                           return ListTile(
                             leading: Text(
                               country.flagmoji,
@@ -167,6 +208,8 @@ class _CountriesListScreenState extends ConsumerState<CountriesListScreen> {
                             },
                           );
                         },
+                        // Sort the groups in ascending order
+                        order: GroupedListOrder.ASC,
                       ),
                     );
                   },
@@ -226,7 +269,15 @@ class _CountriesListScreenState extends ConsumerState<CountriesListScreen> {
 }
 
 class CountryAutocompleteText extends StatefulWidget {
-  const CountryAutocompleteText({super.key});
+  final List<Country> allCountries;
+  final ValueChanged<List<Country>>
+      onFilter; // Callback to update filtered list
+
+  const CountryAutocompleteText({
+    super.key,
+    required this.allCountries,
+    required this.onFilter,
+  });
 
   @override
   State<CountryAutocompleteText> createState() =>
@@ -234,15 +285,43 @@ class CountryAutocompleteText extends StatefulWidget {
 }
 
 class _CountryAutocompleteTextState extends State<CountryAutocompleteText> {
-  late TextEditingController countriesAutocompleteController =
-      TextEditingController();
+  late TextEditingController _countriesAutocompleteController;
+  late FocusNode _focusNode;
 
   late Country? _selectedCountry;
   late List<Country> countries = [];
 
+  /// Listen to text changes, filter the list
+  void _filterCountries() {
+    final query = _countriesAutocompleteController.text.trim().toLowerCase();
+    if (query.isEmpty) {
+      // Return the full list if there's no query
+      widget.onFilter(widget.allCountries);
+    } else {
+      // Filter the list based on typed text
+      final filtered = widget.allCountries.where((country) {
+        return country.name.toLowerCase().contains(query);
+      }).toList();
+      widget.onFilter(filtered);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // _countriesAutocompleteController = TextEditingController();
+    _focusNode = FocusNode();
+
+    // _countriesAutocompleteController.addListener(_filterCountries);
+  }
+
   @override
   void dispose() {
-    countriesAutocompleteController.dispose();
+    _countriesAutocompleteController.removeListener(_filterCountries);
+    // No need to dispose of _countriesAutocompleteController and _focusNode here,
+    // because they are provided by the Autocomplete widget.
+    // _countriesAutocompleteController.dispose();
+    // _focusNode.dispose();
     super.dispose();
   }
 
@@ -251,18 +330,13 @@ class _CountryAutocompleteTextState extends State<CountryAutocompleteText> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Autocomplete<Country>(
-        displayStringForOption: (Country theCountry) {
-          return theCountry.name;
-        },
-        optionsBuilder: (TextEditingValue textEditingValue) {
-          if (textEditingValue.text.isEmpty) {
-            return [];
-            // TODO: show loading indicator?
-          }
-          return countries.where((aCountry) => aCountry.name
-              .toLowerCase()
-              .contains(textEditingValue.text.toLowerCase()));
-        },
+        displayStringForOption: (Country theCountry) => theCountry.name,
+        // Return an empty list so the default overlay never shows
+        optionsBuilder: (TextEditingValue textEditingValue) =>
+            const Iterable.empty(),
+        // Provide an empty container for the overlay
+        optionsViewBuilder: (context, onSelected, options) =>
+            const SizedBox.shrink(),
         onSelected: (suggestion) {
           setState(() {
             _selectedCountry = suggestion;
@@ -276,15 +350,16 @@ class _CountryAutocompleteTextState extends State<CountryAutocompleteText> {
             }
           });
         },
-        fieldViewBuilder: (BuildContext context,
-            TextEditingController controller,
-            FocusNode focusNode,
-            VoidCallback onFieldSubmitted) {
-          countriesAutocompleteController = controller;
+        fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+          _countriesAutocompleteController = controller;
+          _focusNode = focusNode;
+
+          _countriesAutocompleteController.addListener(_filterCountries);
+
           return TextFormField(
-            controller: countriesAutocompleteController,
-            enableSuggestions: false,
-            focusNode: focusNode,
+            controller: _countriesAutocompleteController,
+            enableSuggestions: true,
+            focusNode: _focusNode,
             onFieldSubmitted: (String value) {
               onFieldSubmitted();
             },
@@ -307,20 +382,19 @@ class _CountryAutocompleteTextState extends State<CountryAutocompleteText> {
                   textAlign: TextAlign.center,
                 ),
               ),
-
               prefixIcon: Icon(Icons.search),
               hintText: "Enter a country name",
-              suffixIcon: countriesAutocompleteController.text.isNotEmpty
+              suffixIcon: _countriesAutocompleteController.text.isNotEmpty
                   ? IconButton(
                       icon: Icon(Icons.clear),
                       onPressed: () {
-                        setState(() => countriesAutocompleteController.clear());
+                        setState(
+                            () => _countriesAutocompleteController.clear());
                       },
                     )
                   : null,
             ),
             validator: (String? value) {
-              // If the hit is not an exact match, clear lga field and show error text
               final matchingCountries = countries.where((aState) =>
                   aState.name.toLowerCase() == value?.toLowerCase());
 
