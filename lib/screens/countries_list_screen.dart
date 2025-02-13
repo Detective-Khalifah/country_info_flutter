@@ -56,9 +56,10 @@ class _CountriesListScreenState extends ConsumerState<CountriesListScreen> {
             ),
           ],
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: SingleChildScrollView(
+        body: SizedBox(
+          height: MediaQuery.of(context).size.height * 0.9,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -137,125 +138,127 @@ class _CountriesListScreenState extends ConsumerState<CountriesListScreen> {
                     ),
                   ],
                 ),
-                theCountries.when(
-                  data: (countries) {
-                    // If the countries haven't been loaded yet, store them
-                    // if (allCountries.isEmpty) {
-                    //   allCountries = countries;
-                    //   filteredCountries = countries;
-                    // }
+                Expanded(
+                  child: theCountries.when(
+                    data: (countries) {
+                      // If the countries haven't been loaded yet, store them
+                      // if (allCountries.isEmpty) {
+                      //   allCountries = countries;
+                      //   filteredCountries = countries;
+                      // }
 
-                    // Always update the allCountries and filteredCountries lists
-                    allCountries = countries;
-                    // Initialize filteredCountries if it's empty or after data reload
-                    if (filteredCountries.isEmpty) {
-                      filteredCountries = List.from(allCountries);
-                    }
+                      // Always update the allCountries and filteredCountries lists
+                      allCountries = countries;
+                      // Initialize filteredCountries if it's empty or after data reload
+                      if (filteredCountries.isEmpty) {
+                        filteredCountries = List.from(allCountries);
+                      }
 
-                    // Sort the list of countries; not necessary when using order: [GroupedListOrder.ASC] if items' order is irrelevant
-                    countries.sort((a, b) => a.name.compareTo(b.name));
+                      // Sort the list of countries; not necessary when using order: [GroupedListOrder.ASC] if items' order is irrelevant
+                      countries.sort((a, b) => a.name.compareTo(b.name));
 
-                    return RefreshIndicator.adaptive(
-                      onRefresh: () async {
-                        // Invalidate the provider so that it fetches data again.
-                        ref.invalidate(countriesProvider);
-                        // Await the re-fetched data to complete.
-                        await ref.read(countriesProvider.future);
-                        // return ref.read(apiServiceProvider).fetchCountries();
-                        await ref.read(apiServiceProvider).fetchCountries();
+                      return RefreshIndicator.adaptive(
+                        onRefresh: () async {
+                          // Invalidate the provider so that it fetches data again.
+                          ref.invalidate(countriesProvider);
+                          // Await the re-fetched data to complete.
+                          await ref.read(countriesProvider.future);
+                          // return ref.read(apiServiceProvider).fetchCountries();
+                          await ref.read(apiServiceProvider).fetchCountries();
 
-                        // Wait a moment for the provider to re-fetch before completing the refresh.
-                        await Future.delayed(const Duration(seconds: 1));
-                      },
-                      child: GroupedListView<Country, String>(
-                        shrinkWrap: true,
-                        physics: ClampingScrollPhysics(),
-                        elements: filteredCountries,
-                        groupBy: (country) => country.name[0]
-                            .toUpperCase(), // Group by first letter
-                        groupSeparatorBuilder: (String letter) => Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            letter,
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: themeNotifier.isLightMode()
-                                  ? Color(0xFF667085)
-                                  : Color(0xFF98A2B3),
-                            ),
-                          ),
-                        ),
-                        itemBuilder: (BuildContext context, Country country) {
-                          return ListTile(
-                            leading: Text(
-                              country.flagmoji,
-                              style: TextStyle(fontSize: 40),
-                            ),
-                            title: Text(
-                              country.name,
-                            ),
-                            subtitle: Text(
-                              country.capitalCity,
-                            ),
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      CountryDetailsScreen(country: country),
-                                ),
-                              );
-                            },
-                          );
+                          // Wait a moment for the provider to re-fetch before completing the refresh.
+                          await Future.delayed(const Duration(seconds: 1));
                         },
-                        // Sort the groups in ascending order
-                        order: GroupedListOrder.ASC,
-                      ),
-                    );
-                  },
-                  error: (error, StackTrace stackTrace) {
-                    if (kDebugMode) {
-                      print("Stack trace: $stackTrace");
-                    }
-                    return RefreshIndicator.adaptive(
-                      displacement: 0.5,
-                      onRefresh: () {
-                        // Invalidate the provider so that it fetches data again.
-                        ref.invalidate(countriesProvider);
-                        // Await the re-fetched data to complete.
-                        // await ref.read(countriesProvider.future);
-                        // return ref.read(apiServiceProvider).fetchCountries();
-                        return ref.watch(apiServiceProvider).fetchCountries();
-
-                        // Wait a moment for the provider to re-fetch before completing the refresh.
-                        // await Future.delayed(const Duration(seconds: 1));
-                      },
-                      child: SizedBox(
-                        height: 800,
-                        child: ListView(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Text(
-                                '$error occurred',
-                                style: TextStyle(fontSize: 18),
-                                textAlign: TextAlign.justify,
+                        child: GroupedListView<Country, String>(
+                          shrinkWrap: true,
+                          physics: ClampingScrollPhysics(),
+                          elements: filteredCountries,
+                          groupBy: (country) => country.name[0]
+                              .toUpperCase(), // Group by first letter
+                          groupSeparatorBuilder: (String letter) => Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              letter,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: themeNotifier.isLightMode()
+                                    ? Color(0xFF667085)
+                                    : Color(0xFF98A2B3),
                               ),
                             ),
-                          ],
+                          ),
+                          itemBuilder: (BuildContext context, Country country) {
+                            return ListTile(
+                              leading: Text(
+                                country.flagmoji,
+                                style: TextStyle(fontSize: 40),
+                              ),
+                              title: Text(
+                                country.name,
+                              ),
+                              subtitle: Text(
+                                country.capitalCity,
+                              ),
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        CountryDetailsScreen(country: country),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                          // Sort the groups in ascending order
+                          order: GroupedListOrder.ASC,
                         ),
-                      ),
-                    );
-                  },
-                  loading: () {
-                    return Center(
-                      child: CircularProgressIndicator.adaptive(
-                        backgroundColor: Color(0xFF000F24),
-                        semanticsLabel: "Loading countries",
-                        strokeWidth: 8,
-                      ),
-                    );
-                  },
+                      );
+                    },
+                    error: (error, StackTrace stackTrace) {
+                      if (kDebugMode) {
+                        print("Stack trace: $stackTrace");
+                      }
+                      return RefreshIndicator.adaptive(
+                        displacement: 0.5,
+                        onRefresh: () {
+                          // Invalidate the provider so that it fetches data again.
+                          ref.invalidate(countriesProvider);
+                          // Await the re-fetched data to complete.
+                          // await ref.read(countriesProvider.future);
+                          // return ref.read(apiServiceProvider).fetchCountries();
+                          return ref.watch(apiServiceProvider).fetchCountries();
+
+                          // Wait a moment for the provider to re-fetch before completing the refresh.
+                          // await Future.delayed(const Duration(seconds: 1));
+                        },
+                        child: SizedBox(
+                          height: 800,
+                          child: ListView(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Text(
+                                  '$error occurred',
+                                  style: TextStyle(fontSize: 18),
+                                  textAlign: TextAlign.justify,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                    loading: () {
+                      return Center(
+                        child: CircularProgressIndicator.adaptive(
+                          backgroundColor: Color(0xFF000F24),
+                          semanticsLabel: "Loading countries",
+                          strokeWidth: 8,
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ],
             ),
